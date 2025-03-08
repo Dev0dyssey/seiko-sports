@@ -1,0 +1,27 @@
+section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+section th,
+section td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+section th {
+  background-color: #8f8f8b;
+}
+
+section tr:nth-child(even) {
+  background-color: #312f2f;
+}
+
+section tr:hover {
+  background-color: #6b6767;
+}
+
+section tr {
+  cursor: pointer;
+}
