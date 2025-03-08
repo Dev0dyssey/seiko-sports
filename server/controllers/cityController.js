@@ -13,9 +13,14 @@ const getCities = (req, res) => {
       } else {
         const citiesWithCoordinates = rows.map((city) => ({
           ...city,
-          capitalCoordinates: {
-            latitude: city.capitalLatitude,
-            longitude: city.capitalLongitude,
+          country: {
+            countryName: city.country,
+            isoCode: city.isoCode,
+            currencyCode: city.currencyCode,
+            capitalCoordinates: {
+              latitude: city.capitalLatitude,
+              longitude: city.capitalLongitude,
+            },
           },
         }));
         res.json(citiesWithCoordinates);
