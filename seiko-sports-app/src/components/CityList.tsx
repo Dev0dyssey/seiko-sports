@@ -34,7 +34,7 @@ function CityList({
             <tr key={city.id} onClick={() => onSelectCity(city)}>
               <td>{city.cityName}</td>
               <td>{city.state}</td>
-              <td>{city.country}</td>
+              <td>{city.country.countryName}</td>
               <td>{city.touristRating}</td>
               <td>
                 <button

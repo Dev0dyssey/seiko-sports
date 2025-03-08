@@ -3,6 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const db = require("./database");
 const { v4: uuidv4 } = require("uuid");
+const { validateCityName } = require("./validation");
 
 const app = express();
 const port = 3000;
@@ -12,13 +13,20 @@ app.use(bodyParser.json());
 
 app.get("/cities", (req, res) => {
   db.all(
-    "SELECT guid, cityName, state, country, touristRating, dateEstablished, estimatedPopulation FROM cities",
+    "SELECT guid, cityName, state, country, touristRating, dateEstablished, estimatedPopulation, isoCode, currencyCode, capitalLatitude, capitalLongitude FROM cities",
     (err, rows) => {
       if (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to fetch cities" });
       } else {
-        res.json(rows);
+        const citiesWithCoordinates = rows.map((city) => ({
+          ...city,
+          capitalCoordinates: {
+            latitude: city.capitalLatitude,
+            longitude: city.capitalLongitude,
+          },
+        }));
+        res.json(citiesWithCoordinates);
       }
     }
   );
@@ -33,28 +41,53 @@ app.post("/cities", (req, res) => {
     dateEstablished,
     estimatedPopulation,
   } = req.body;
+
+  const { countryName, isoCode, currencyCode, capitalCoordinates } = country;
+
   const guid = uuidv4();
 
-  db.run(
-    `INSERT INTO cities (guid, cityName, state, country, touristRating, dateEstablished, estimatedPopulation) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [
-      guid,
-      cityName,
-      state,
-      country,
-      touristRating,
-      dateEstablished,
-      estimatedPopulation,
-    ],
-    function (err) {
-      if (err) {
-        console.error(err);
-        res.status(500).send({ error: err.message });
-      } else {
-        res.json({ guid, ...req.body });
-      }
+  validateCityName(cityName, (err, cityExists) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send({ error: err.message });
+    } else if (cityExists) {
+      res.status(400).send({ error: "City with this name already exists" });
+    } else {
+      db.run(
+        `INSERT INTO cities (guid, cityName, state, country, touristRating, dateEstablished, estimatedPopulation, isoCode, currencyCode, capitalLatitude, capitalLongitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          guid,
+          cityName,
+          state,
+          countryName,
+          touristRating,
+          dateEstablished,
+          estimatedPopulation,
+          isoCode,
+          currencyCode,
+          capitalCoordinates.latitude,
+          capitalCoordinates.longitude,
+        ],
+        function (err) {
+          if (err) {
+            console.error(err);
+            res.status(500).send({ error: err.message });
+          } else {
+            res.json({ guid, ...req.body });
+          }
+        }
+      );
     }
-  );
+  });
+
+  // function (err) {
+  //   if (err) {
+  //     console.error(err);
+  //     res.status(500).send({ error: err.message });
+  //   } else {
+  //     res.json({ guid, ...req.body });
+  //   }
+  // }
 });
 
 app.put("/cities/:guid", (req, res) => {
@@ -69,16 +102,8 @@ app.put("/cities/:guid", (req, res) => {
   } = req.body;
 
   db.run(
-    `UPDATE cities SET cityName = ?, state = ?, country = ?, touristRating = ?, dateEstablished = ?, estimatedPopulation = ? WHERE guid = ?`,
-    [
-      cityName,
-      state,
-      country,
-      touristRating,
-      dateEstablished,
-      estimatedPopulation,
-      guid,
-    ],
+    `UPDATE cities SET touristRating = ?, dateEstablished = ?, estimatedPopulation = ? WHERE guid = ?`,
+    [touristRating, dateEstablished, estimatedPopulation, guid],
     function (err) {
       if (err) {
         console.error(err);

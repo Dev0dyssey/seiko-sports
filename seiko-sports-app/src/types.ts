@@ -2,12 +2,20 @@ export interface City {
   id: number;
   cityName: string;
   state: string;
-  country: string;
+  country: Country;
   touristRating: number;
   // String or Date
   dateEstablished: string;
   estimatedPopulation: number;
-  isoCode?: string;
-  currencyCode?: string;
   weather?: any;
+}
+
+export interface Country {
+  countryName: string;
+  isoCode: string;
+  currencyCode: string;
+  capitalCoordinates: {
+    latitude: number;
+    longitude: number;
+  };
 }

@@ -5,7 +5,12 @@ import Select, { SingleValue } from "react-select";
 interface AddCityFormProps {
   onCancel: () => void;
   onAddCity: (city: Omit<City, "id">) => void;
-  countries: { value: string; label: string }[];
+  countries: {
+    countryName: string;
+    isoCode: string;
+    currencyCode: string;
+    capitalCoordinates: { latitude: number; longitude: number };
+  }[];
 }
 
 function AddCityForm({
@@ -22,10 +27,18 @@ function AddCityForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const selectedCountry = countries.find((c) => c.countryName === country);
     const newCity: Omit<City, "id"> = {
       cityName,
       state,
-      country,
+      country: {
+        countryName: selectedCountry ? selectedCountry.countryName : "",
+        isoCode: selectedCountry ? selectedCountry.isoCode : "",
+        currencyCode: selectedCountry ? selectedCountry.currencyCode : "",
+        capitalCoordinates: selectedCountry
+          ? selectedCountry.capitalCoordinates
+          : { latitude: 0, longitude: 0 },
+      },
       touristRating,
       dateEstablished,
       estimatedPopulation,
@@ -71,8 +84,11 @@ function AddCityForm({
               backgroundColor: state.isFocused ? "lightgray" : "white",
             }),
           }}
-          options={countries}
-          value={countries.find((c) => c.value === country)}
+          options={countries.map((country) => ({
+            value: country.countryName,
+            label: country.countryName,
+          }))}
+          value={{ value: country, label: country }}
           onChange={(e: SingleValue<{ value: string; label: string }>) =>
             setCountry(e ? e.value : "")
           }

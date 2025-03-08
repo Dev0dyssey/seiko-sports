@@ -11,7 +11,11 @@ db.run(`
     country TEXT NOT NULL,
     touristRating INTEGER NOT NULL,
     dateEstablished TEXT NOT NULL,
-    estimatedPopulation INTEGER NOT NULL
+    estimatedPopulation INTEGER NOT NULL,
+    isoCode TEXT,
+    currencyCode TEXT,
+    capitalLatitude REAL,
+    capitalLongitude REAL
     )    
 `);
 
