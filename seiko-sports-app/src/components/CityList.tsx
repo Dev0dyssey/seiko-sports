@@ -32,7 +32,7 @@ function CityList({
         <tbody>
           {cities.map((city) => (
             <tr key={city.id} onClick={() => onSelectCity(city)}>
-              <td>{city.name}</td>
+              <td>{city.cityName}</td>
               <td>{city.state}</td>
               <td>{city.country}</td>
               <td>{city.touristRating}</td>

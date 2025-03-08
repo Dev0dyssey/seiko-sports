@@ -13,7 +13,7 @@ function AddCityForm({
   onAddCity,
   countries,
 }: Readonly<AddCityFormProps>) {
-  const [name, setName] = useState<string>("");
+  const [cityName, setName] = useState<string>("");
   const [state, setState] = useState<string>("");
   const [country, setCountry] = useState<string>("");
   const [touristRating, setTouristRating] = useState<number>(1);
@@ -23,7 +23,7 @@ function AddCityForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newCity: Omit<City, "id"> = {
-      name,
+      cityName,
       state,
       country,
       touristRating,
@@ -43,7 +43,7 @@ function AddCityForm({
           <input
             type="text"
             id="name"
-            value={name}
+            value={cityName}
             onChange={(e) => setName(e.target.value)}
             required
           />

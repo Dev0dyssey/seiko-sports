@@ -6,7 +6,7 @@ db.run(`
     CREATE TABLE IF NOT EXISTS cities (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     guid TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL,
+    cityName TEXT NOT NULL,
     state TEXT,
     country TEXT NOT NULL,
     touristRating INTEGER NOT NULL,
@@ -14,3 +14,5 @@ db.run(`
     estimatedPopulation INTEGER NOT NULL
     )    
 `);
+
+module.exports = db;

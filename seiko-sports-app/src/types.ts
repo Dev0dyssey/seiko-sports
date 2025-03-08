@@ -1,6 +1,6 @@
 export interface City {
   id: number;
-  name: string;
+  cityName: string;
   state: string;
   country: string;
   touristRating: number;

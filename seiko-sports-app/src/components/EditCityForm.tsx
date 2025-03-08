@@ -16,7 +16,7 @@ function EditCityForm({
   onUpdateCity,
   countries,
 }: Readonly<EditCityFormProps>) {
-  const [name, setName] = useState(city.name);
+  const [cityName, setName] = useState(city.cityName);
   const [state, setState] = useState(city.state);
   const [country, setCountry] = useState(city.country);
   const [touristRating, setTouristRating] = useState(city.touristRating);
@@ -29,7 +29,7 @@ function EditCityForm({
     e.preventDefault();
     const updatedCity: City = {
       ...city, // Keep the original city ID
-      name,
+      cityName,
       state,
       country,
       touristRating,
@@ -50,7 +50,7 @@ function EditCityForm({
           <input
             type="text"
             id="name"
-            value={name}
+            value={cityName}
             onChange={(e) => setName(e.target.value)}
             required
           />
