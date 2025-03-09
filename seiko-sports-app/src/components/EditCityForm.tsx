@@ -1,20 +1,18 @@
 // src/components/EditCityForm.tsx
 import React, { useState } from "react";
-import { City, Country } from "../types";
-import Select, { SingleValue } from "react-select";
+import { City } from "../types";
+import "./Forms.css";
 
 interface EditCityFormProps {
   city: City;
   onCancel: () => void;
   onUpdateCity: (city: City) => void;
-  countries: Country[];
 }
 
 function EditCityForm({
   city,
   onCancel,
   onUpdateCity,
-  countries,
 }: Readonly<EditCityFormProps>) {
   const [touristRating, setTouristRating] = useState(city.touristRating);
   const [dateEstablished, setDateEstablished] = useState(city.dateEstablished);
@@ -22,23 +20,42 @@ function EditCityForm({
     city.estimatedPopulation
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const updatedCity: City = {
-      ...city, // Keep the original city ID
+      ...city,
       touristRating,
       dateEstablished,
       estimatedPopulation,
     };
-    onUpdateCity(updatedCity);
-    onCancel();
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/cities/${city.guid}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedCity),
+        }
+      );
+
+      if (response.ok) {
+        onUpdateCity(updatedCity);
+        onCancel();
+      } else {
+        throw new Error("Failed to update city");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
-    <section>
+    <section className="form-container">
       <h2>Edit City</h2>
       <form onSubmit={handleSubmit}>
-        {/* Form fields similar to AddCityForm, but with values pre-filled from the city prop */}
         <div>
           <label htmlFor="rating">Rating:</label>
           <input
@@ -71,10 +88,12 @@ function EditCityForm({
             required
           />
         </div>
-        <button type="submit">Update</button>
-        <button type="button" onClick={onCancel}>
-          Cancel
-        </button>
+        <div className="button-group">
+          <button type="submit">Save</button>
+          <button type="button" onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
       </form>
     </section>
   );

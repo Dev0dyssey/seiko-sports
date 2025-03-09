@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { City } from "../types";
 import Select, { SingleValue } from "react-select";
+import "./Forms.css";
 
 interface AddCityFormProps {
   onCancel: () => void;
-  onAddCity: (city: Omit<City, "id">) => void;
+  onAddCity: (city: City) => void;
   countries: {
     countryName: string;
     isoCode: string;
@@ -18,17 +19,17 @@ function AddCityForm({
   onAddCity,
   countries,
 }: Readonly<AddCityFormProps>) {
-  const [cityName, setName] = useState<string>("");
+  const [cityName, setCityName] = useState<string>("");
   const [state, setState] = useState<string>("");
   const [country, setCountry] = useState<string>("");
   const [touristRating, setTouristRating] = useState<number>(1);
   const [dateEstablished, setDateEstablished] = useState<string>("");
   const [estimatedPopulation, setEstimatedPopulation] = useState<number>(0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const selectedCountry = countries.find((c) => c.countryName === country);
-    const newCity: Omit<City, "id"> = {
+    const newCity: Omit<City, "guid"> = {
       cityName,
       state,
       country: {
@@ -43,12 +44,51 @@ function AddCityForm({
       dateEstablished,
       estimatedPopulation,
     };
-    onAddCity(newCity);
-    onCancel();
+
+    try {
+      const response = await fetch("http://localhost:3000/cities", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newCity),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+
+        const rowData = responseData.row;
+
+        const formattedCity: City = {
+          guid: rowData.guid,
+          cityName: rowData.cityName,
+          state: rowData.state,
+          country: {
+            countryName: rowData.country,
+            isoCode: rowData.isoCode || "",
+            currencyCode: rowData.currencyCode || "",
+            capitalCoordinates: {
+              latitude: rowData.capitalLatitude || 0,
+              longitude: rowData.capitalLongitude || 0,
+            },
+          },
+          touristRating: rowData.touristRating,
+          dateEstablished: rowData.dateEstablished,
+          estimatedPopulation: rowData.estimatedPopulation,
+        };
+
+        onAddCity(formattedCity);
+        onCancel();
+      } else {
+        throw new Error("Failed to add city");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
-    <section className="add-city-form">
+    <section className="form-container">
       <h2>Add City</h2>
       <form onSubmit={handleSubmit}>
         <div>
@@ -57,7 +97,7 @@ function AddCityForm({
             type="text"
             id="name"
             value={cityName}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setCityName(e.target.value)}
             required
           />
         </div>
@@ -125,10 +165,12 @@ function AddCityForm({
             required
           />
         </div>
-        <button type="submit">Add</button>
-        <button type="button" onClick={onCancel}>
-          Cancel
-        </button>
+        <div className="button-group">
+          <button type="submit">Add</button>
+          <button type="button" onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
       </form>
     </section>
   );

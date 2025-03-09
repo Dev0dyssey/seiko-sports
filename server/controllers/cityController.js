@@ -11,18 +11,25 @@ const getCities = (req, res) => {
         console.error(err);
         res.status(500).json({ error: "Failed to fetch cities" });
       } else {
-        const citiesWithCoordinates = rows.map((city) => ({
-          ...city,
-          country: {
-            countryName: city.country,
-            isoCode: city.isoCode,
-            currencyCode: city.currencyCode,
-            capitalCoordinates: {
-              latitude: city.capitalLatitude,
-              longitude: city.capitalLongitude,
+        const citiesWithCoordinates = rows.map((city) => {
+          return {
+            guid: city.guid,
+            cityName: city.cityName,
+            state: city.state,
+            touristRating: city.touristRating,
+            dateEstablished: city.dateEstablished,
+            estimatedPopulation: city.estimatedPopulation,
+            country: {
+              countryName: city.country,
+              isoCode: city.isoCode,
+              currencyCode: city.currencyCode,
+              capitalCoordinates: {
+                latitude: city.capitalLatitude,
+                longitude: city.capitalLongitude,
+              },
             },
-          },
-        }));
+          };
+        });
         res.json(citiesWithCoordinates);
       }
     }
@@ -72,14 +79,12 @@ const createCity = (req, res) => {
             console.error(err);
             res.status(500).json({ error: "Failed to create city" });
           } else {
-            res.json({
-              guid,
-              cityName,
-              state,
-              country,
-              touristRating,
-              dateEstablished,
-              estimatedPopulation,
+            db.get(`SELECT * FROM cities WHERE guid =?`, [guid], (err, row) => {
+              if (err) {
+                console.error(err);
+              } else {
+                res.json({ row });
+              }
             });
           }
         }

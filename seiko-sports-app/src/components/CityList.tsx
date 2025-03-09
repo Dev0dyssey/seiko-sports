@@ -7,6 +7,9 @@ interface CityListProps {
   onSelectCity: (city: City) => void;
   onEditCity: (city: City) => void;
   onDeleteCity: (city: City) => void;
+  searchQuery: string;
+  onSearch: (query: string) => void;
+  isAddingCity: boolean;
 }
 
 function CityList({
@@ -15,50 +18,127 @@ function CityList({
   onSelectCity,
   onEditCity,
   onDeleteCity,
+  searchQuery,
+  onSearch,
+  isAddingCity,
 }: Readonly<CityListProps>) {
   return (
     <section>
       <h2>City List</h2>
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Search by city name..."
+          value={searchQuery}
+          onChange={(e) => onSearch(e.target.value)}
+          className="search-input"
+        />
+      </div>
       <table>
         <thead>
           <tr>
+            <th>ID</th>
             <th>Name</th>
             <th>State</th>
             <th>Country</th>
             <th>Rating</th>
+            <th>Date Established</th>
+            <th>Population</th>
+            <th>ISO Code</th>
+            <th>Currency</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {cities.map((city) => (
-            <tr key={city.id} onClick={() => onSelectCity(city)}>
-              <td>{city.cityName}</td>
-              <td>{city.state}</td>
-              <td>{city.country.countryName}</td>
-              <td>{city.touristRating}</td>
-              <td>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditCity(city);
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteCity(city);
-                  }}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
+          {cities.map(
+            (city) =>
+              city.country && (
+                <tr key={city.guid}>
+                  {/* Make individual cells clickable instead of the entire row */}
+                  <td
+                    className="clickable-cell"
+                    onClick={() => onSelectCity(city)}
+                  >
+                    {city.guid.toString().substring(0, 8)}...
+                  </td>
+                  <td
+                    className="clickable-cell"
+                    onClick={() => onSelectCity(city)}
+                  >
+                    {city.cityName}
+                  </td>
+                  <td
+                    className="clickable-cell"
+                    onClick={() => onSelectCity(city)}
+                  >
+                    {city.state}
+                  </td>
+                  <td
+                    className="clickable-cell"
+                    onClick={() => onSelectCity(city)}
+                  >
+                    {city.country.countryName}
+                  </td>
+                  <td
+                    className="clickable-cell"
+                    onClick={() => onSelectCity(city)}
+                  >
+                    {city.touristRating}
+                  </td>
+                  <td
+                    className="clickable-cell"
+                    onClick={() => onSelectCity(city)}
+                  >
+                    {city.dateEstablished}
+                  </td>
+                  <td
+                    className="clickable-cell"
+                    onClick={() => onSelectCity(city)}
+                  >
+                    {city.estimatedPopulation?.toLocaleString()}
+                  </td>
+                  <td
+                    className="clickable-cell"
+                    onClick={() => onSelectCity(city)}
+                  >
+                    {city.country.isoCode}
+                  </td>
+                  <td
+                    className="clickable-cell"
+                    onClick={() => onSelectCity(city)}
+                  >
+                    {city.country.currencyCode}
+                  </td>
+
+                  {/* Actions column - no onSelectCity handler */}
+                  <td className="actions-column">
+                    <button
+                      className="city-table-button edit-button"
+                      onClick={() => {
+                        onEditCity(city);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="city-table-button delete-button"
+                      onClick={() => {
+                        onDeleteCity(city);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              )
+          )}
         </tbody>
       </table>
-      <button onClick={onAddCity}>Add City</button>
+      {!isAddingCity && (
+        <button className="city-table-button add-button" onClick={onAddCity}>
+          Add City
+        </button>
+      )}
     </section>
   );
 }

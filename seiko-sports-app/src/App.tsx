@@ -12,10 +12,23 @@ function App() {
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [isAdding, setIsAdding] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editingCity, setEditingCity] = useState<City | null>(null); // New state for editing city
+  const [editingCity, setEditingCity] = useState<City | null>(null);
   const [countries, setCountries] = useState<Country[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
+    if (isAdding || isEditing) {
+      // Use setTimeout to wait for the form to start animating
+      setTimeout(() => {
+        const formElement = document.querySelector(
+          ".form-transition-container.open"
+        );
+        if (formElement) {
+          formElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+    }
+
     const fetchCities = async () => {
       try {
         const response = await fetch("http://localhost:3000/cities");
@@ -41,8 +54,10 @@ function App() {
             countryName: country.name.common,
             isoCode: country.cca3,
             currencyCode: Object.keys(country.currencies || {})[0],
-            capitalCoordinates: country.capitalInfo?.latlng?.[0] ?? 0,
-            longitude: country.capitalInfo?.latlng?.[1] ?? 0,
+            capitalCoordinates: {
+              latitude: country.capitalInfo?.latlng?.[0] ?? 0,
+              longitude: country.capitalInfo?.latlng?.[1] ?? 0,
+            },
           }));
           setCountries(countryNames);
         } else {
@@ -56,7 +71,15 @@ function App() {
     Promise.all([fetchCities(), fetchCountries()]).catch((error) => {
       console.error("Error fetching data:", error);
     });
-  }, []);
+  }, [isAdding, isEditing]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const filteredCities = cities.filter((city) =>
+    city.cityName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSelectedCity = (city: City) => {
     setSelectedCity(city);
@@ -65,28 +88,56 @@ function App() {
     }
   };
 
-  const handleAddCity = (newCity: Omit<City, "id">) => {
-    const nextId =
-      cities.length > 0 ? Math.max(...cities.map((city) => city.id)) + 1 : 1;
-    setCities([...cities, { ...newCity, id: nextId }]);
+  const handleAddCity = (newCity: City) => {
+    setCities([...cities, newCity]);
     setIsAdding(false);
   };
 
   const handleEditCity = (city: City) => {
     setEditingCity(city);
     setIsEditing(true);
+    setIsAdding(false); // Hide add form when editing
   };
 
   const handleUpdateCity = (updatedCity: City) => {
     setCities(
-      cities.map((city) => (city.id === updatedCity.id ? updatedCity : city))
+      cities.map((city) =>
+        city.guid === updatedCity.guid ? updatedCity : city
+      )
     );
     setIsEditing(false);
     setEditingCity(null);
   };
 
-  const handleDeleteCity = (cityToDelete: City) => {
-    setCities(cities.filter((city) => city.id !== cityToDelete.id));
+  const handleAddCityClick = () => {
+    setIsAdding(true);
+    setIsEditing(false); // Hide edit form when adding
+    setEditingCity(null);
+  };
+
+  const handleDeleteCity = async (cityToDelete: City) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/cities/${cityToDelete.guid}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        setCities(cities.filter((city) => city.guid !== cityToDelete.guid));
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to delete city:", errorData.error);
+        alert(`Failed to delete city: ${errorData.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Error deleting city:", error);
+      alert("An error occurred while trying to delete the city.");
+    }
   };
 
   return (
@@ -95,29 +146,34 @@ function App() {
 
       <main>
         <CityList
-          cities={cities}
-          onAddCity={() => setIsAdding(true)}
+          cities={filteredCities}
+          onAddCity={handleAddCityClick}
           onSelectCity={handleSelectedCity}
           onEditCity={handleEditCity}
           onDeleteCity={handleDeleteCity}
+          searchQuery={searchQuery}
+          onSearch={handleSearch}
+          isAddingCity={isAdding}
         />
-        {isAdding && (
-          <AddCityForm
-            countries={countries}
-            onCancel={() => setIsAdding(false)}
-            onAddCity={handleAddCity}
-          />
-        )}
-        {isEditing &&
-          editingCity && ( // Conditionally render EditCityForm with editingCity data
-            <EditCityForm
-              key={editingCity.id}
-              city={editingCity}
+        <div className={`form-transition-container ${isAdding ? "open" : ""}`}>
+          {isAdding && (
+            <AddCityForm
               countries={countries}
+              onCancel={() => setIsAdding(false)}
+              onAddCity={handleAddCity}
+            />
+          )}
+        </div>
+        <div className={`form-transition-container ${isEditing ? "open" : ""}`}>
+          {isEditing && editingCity && (
+            <EditCityForm
+              key={editingCity.guid}
+              city={editingCity}
               onCancel={() => setIsEditing(false)}
               onUpdateCity={handleUpdateCity}
             />
           )}
+        </div>
         {selectedCity && <WeatherDisplay cityName={selectedCity.cityName} />}
       </main>
     </div>
