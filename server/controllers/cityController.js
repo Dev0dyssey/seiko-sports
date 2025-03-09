@@ -1,7 +1,8 @@
 const db = require("../database.js");
 const { v4: uuidv4 } = require("uuid");
 const { validateCityName } = require("../validation");
-const sanitizeHtml = require("sanitize-html"); // Import sanitize-html
+const sanitizeHtml = require("sanitize-html");
+const axios = require("axios");
 
 const getCities = (req, res) => {
   db.all(
@@ -128,9 +129,43 @@ const deleteCity = (req, res) => {
   });
 };
 
+const getWeatherForCity = async (req, res) => {
+  const { lat, lon } = req.query;
+
+  if (!lat || !lon) {
+    return res
+      .status(400)
+      .json({ error: "Latitude and longitude are required" });
+  }
+
+  try {
+    const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+
+    if (!API_KEY) {
+      console.error("OpenWeatherMap API key not configured");
+      return res.status(500).json({ error: "Weather service not available" });
+    }
+
+    const response = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}`
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error("Weather API error:", error.response?.data || error.message);
+    if (error.response?.data?.message) {
+      return res.status(error.response.status || 500).json({
+        error: `Weather API error: ${error.response.data.message}`,
+      });
+    }
+    res.status(500).json({ error: "Failed to fetch weather data" });
+  }
+};
+
 module.exports = {
   getCities,
   createCity,
   updateCity,
   deleteCity,
+  getWeatherForCity,
 };

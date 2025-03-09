@@ -6,5 +6,6 @@ router.get("/", cityController.getCities);
 router.post("/", cityController.createCity);
 router.put("/:guid", cityController.updateCity);
 router.delete("/:guid", cityController.deleteCity);
+router.get("/weather", cityController.getWeatherForCity);
 
 module.exports = router;

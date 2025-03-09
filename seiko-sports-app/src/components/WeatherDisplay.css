@@ -1,0 +1,238 @@
+/* =======================
+   1. CONTAINER STYLING
+   ======================= */
+.weather-container {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  margin: 30px auto;
+  max-width: 800px;
+  position: relative;
+  overflow: hidden;
+}
+
+.weather-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  z-index: 1;
+}
+
+.weather-container h2 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  text-align: center;
+  font-size: 2rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.weather-note {
+  text-align: center;
+  font-style: italic;
+  opacity: 0.8;
+  margin-bottom: 25px;
+  font-size: 0.9rem;
+}
+
+/* =======================
+   2. CURRENT WEATHER SECTION
+   ======================= */
+.current-weather {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  padding: 25px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.weather-main {
+  text-align: center;
+  margin-bottom: 15px;
+  min-width: 180px;
+}
+
+.temperature {
+  font-size: 4rem;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.conditions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.conditions span {
+  text-transform: capitalize;
+  font-size: 1.3rem;
+  margin-top: -5px;
+}
+
+.conditions img {
+  width: 100px;
+  height: 100px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+}
+
+/* =======================
+   3. WEATHER DETAILS
+   ======================= */
+.weather-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 230px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.detail-value {
+  font-weight: 600;
+}
+
+/* =======================
+   4. SUN TIMES SECTION
+   ======================= */
+.weather-additional {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sun-times {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.sun-time-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: 15px 25px;
+  border-radius: 8px;
+  min-width: 120px;
+}
+
+.sun-time-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.sun-time-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* =======================
+   5. LOADING STATES
+   ======================= */
+.weather-loading .loading-spinner {
+  text-align: center;
+  padding: 60px;
+  font-size: 1.2rem;
+  position: relative;
+}
+
+.weather-loading .loading-spinner::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =======================
+   6. ERROR STATES
+   ======================= */
+.weather-error .error-message {
+  background-color: rgba(255, 0, 0, 0.2);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 20px 0;
+  border: 1px solid rgba(255, 0, 0, 0.4);
+}
+
+/* =======================
+   7. RESPONSIVE DESIGN
+   ======================= */
+@media (max-width: 600px) {
+  .weather-container {
+    padding: 20px;
+    margin: 15px;
+  }
+  
+  .current-weather {
+    flex-direction: column;
+    gap: 20px;
+    padding: 15px;
+  }
+  
+  .weather-details {
+    width: 100%;
+  }
+  
+  .temperature {
+    font-size: 3rem;
+  }
+  
+  .conditions img {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .sun-time-item {
+    width: 100%;
+    padding: 12px;
+  }
+}

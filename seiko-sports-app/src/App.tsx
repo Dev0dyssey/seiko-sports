@@ -191,7 +191,7 @@ function App() {
           )}
         </div>
 
-        {selectedCity && <WeatherDisplay cityName={selectedCity.cityName} />}
+        {selectedCity && <WeatherDisplay city={selectedCity} />}
       </main>
     </div>
   );
