@@ -109,7 +109,7 @@ seiko-sports/
 
 4. Start the backend server:
    ```bash
-   npm start
+   node index.js
    ```
    The server will run on http://localhost:3000 by default.
 
