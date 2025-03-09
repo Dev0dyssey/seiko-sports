@@ -1,7 +1,6 @@
 import { City } from "../types";
 import "./CityList.css";
 
-// Helper component for clickable cells
 const ClickableCell = ({
   onClick,
   children,
@@ -23,6 +22,7 @@ interface CityListProps {
   searchQuery: string;
   onSearch: (query: string) => void;
   isAddingCity: boolean;
+  isEditingCity: boolean;
 }
 
 function CityList({
@@ -34,11 +34,14 @@ function CityList({
   searchQuery,
   onSearch,
   isAddingCity,
+  isEditingCity,
 }: Readonly<CityListProps>) {
-  // Use table data mapping to avoid repetition
   const renderCityRow = (city: City) => {
-    // Handler creation for each city
-    const handleSelect = () => onSelectCity(city);
+    const handleSelect = () => {
+      if (!isAddingCity && !isEditingCity) {
+        onSelectCity(city);
+      }
+    };
 
     return (
       <tr key={city.guid}>
@@ -70,12 +73,14 @@ function CityList({
           <button
             className="city-table-button edit-button"
             onClick={() => onEditCity(city)}
+            disabled={isAddingCity || isEditingCity}
           >
             Edit
           </button>
           <button
             className="city-table-button delete-button"
             onClick={() => onDeleteCity(city)}
+            disabled={isAddingCity || isEditingCity}
           >
             Delete
           </button>

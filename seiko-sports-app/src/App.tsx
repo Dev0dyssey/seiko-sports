@@ -91,9 +91,8 @@ function App() {
   };
 
   const handleSelectedCity = (city: City) => {
-    setSelectedCity(city);
-    if (isEditing) {
-      setEditingCity(city);
+    if (!isAdding && !isEditing) {
+      setSelectedCity(city);
     }
   };
 
@@ -101,6 +100,17 @@ function App() {
     setIsAdding(true);
     setIsEditing(false);
     setEditingCity(null);
+  };
+
+  const handleAddCancel = () => {
+    setIsAdding(false);
+    setSelectedCity(null); // Clear any selected city
+  };
+
+  const handleEditCancel = () => {
+    setIsEditing(false);
+    setEditingCity(null);
+    setSelectedCity(null); // Clear any selected city
   };
 
   const handleEditCity = (city: City) => {
@@ -112,6 +122,7 @@ function App() {
   const handleAddCity = (newCity: City) => {
     setCities([...cities, newCity]);
     setIsAdding(false);
+    setSelectedCity(null); // Clear any selected city
   };
 
   const handleUpdateCity = (updatedCity: City) => {
@@ -122,6 +133,7 @@ function App() {
     );
     setIsEditing(false);
     setEditingCity(null);
+    setSelectedCity(null); // Clear any selected city
   };
 
   const handleDeleteCity = async (cityToDelete: City) => {
@@ -168,13 +180,14 @@ function App() {
           searchQuery={searchQuery}
           onSearch={handleSearch}
           isAddingCity={isAdding}
+          isEditingCity={isEditing}
         />
 
         <div className={`form-transition-container ${isAdding ? "open" : ""}`}>
           {isAdding && (
             <AddCityForm
               countries={countries}
-              onCancel={() => setIsAdding(false)}
+              onCancel={handleAddCancel}
               onAddCity={handleAddCity}
             />
           )}
@@ -185,13 +198,15 @@ function App() {
             <EditCityForm
               key={editingCity.guid}
               city={editingCity}
-              onCancel={() => setIsEditing(false)}
+              onCancel={handleEditCancel}
               onUpdateCity={handleUpdateCity}
             />
           )}
         </div>
 
-        {selectedCity && <WeatherDisplay city={selectedCity} />}
+        {selectedCity && !isAdding && !isEditing && (
+          <WeatherDisplay city={selectedCity} />
+        )}
       </main>
     </div>
   );

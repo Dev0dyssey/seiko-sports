@@ -69,6 +69,15 @@ section tr {
   opacity: 0.9;
 }
 
+/* Disabled button state */
+.city-table-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #cccccc;
+  transform: none;
+  box-shadow: none;
+}
+
 /* Action-specific button styles */
 .edit-button {
   background-color: #2196F3;
