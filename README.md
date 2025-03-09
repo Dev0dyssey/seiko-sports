@@ -56,8 +56,8 @@ A web application for managing city records and viewing weather conditions, buil
 ## Project Structure
 
 ```
-city-weather-app/
-├── frontend/                   # React frontend
+seiko-sports/
+├── seiko-sports-app/                   # React frontend
 │   ├── src/
 │   │   ├── components/         # UI Components
 │   │   │   ├── AddCityForm.tsx # Form for adding cities
@@ -93,8 +93,8 @@ city-weather-app/
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/city-weather-app.git
-   cd city-weather-app/server
+   git clone https://github.com/Dev0dyssey/seiko-sports.git
+   cd seiko-sportsserver
    ```
 
 2. Install backend dependencies:
