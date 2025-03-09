@@ -60,6 +60,45 @@ select:focus {
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
+/* City info display for non-editable fields */
+.city-info {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+  
+.city-info p {
+  margin: 6px 0;
+  color: #fff;
+}
+  
+.city-info strong {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* React-Select styling */
+.country-select__control {
+  background-color: white !important;
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+  padding: 2px !important;
+}
+
+.country-select__menu {
+  background-color: white !important;
+  z-index: 100 !important;
+}
+
+.country-select__option {
+  color: black !important;
+}
+
+.country-select__option--is-focused {
+  background-color: lightgray !important;
+}
+
 /* =======================
    3. BUTTON STYLING
    ======================= */

@@ -14,6 +14,41 @@ interface AddCityFormProps {
   }[];
 }
 
+interface FormField {
+  id: string;
+  label: string;
+  type: "text" | "number";
+  value: string | number;
+  onChange: (value: string) => void;
+  required?: boolean;
+  min?: number;
+  max?: number;
+}
+
+const FormField = ({
+  id,
+  label,
+  type,
+  value,
+  onChange,
+  required,
+  min,
+  max,
+}: FormField) => (
+  <div className="form-group">
+    <label htmlFor={id}>{label}:</label>
+    <input
+      type={type}
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      required={required}
+      min={min}
+      max={max}
+    />
+  </div>
+);
+
 function AddCityForm({
   onCancel,
   onAddCity,
@@ -26,10 +61,9 @@ function AddCityForm({
   const [dateEstablished, setDateEstablished] = useState<string>("");
   const [estimatedPopulation, setEstimatedPopulation] = useState<number>(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const createCityObject = (): Omit<City, "guid"> => {
     const selectedCountry = countries.find((c) => c.countryName === country);
-    const newCity: Omit<City, "guid"> = {
+    return {
       cityName,
       state,
       country: {
@@ -44,6 +78,32 @@ function AddCityForm({
       dateEstablished,
       estimatedPopulation,
     };
+  };
+
+  const formatResponseToCity = (responseData: any): City => {
+    const rowData = responseData.row;
+    return {
+      guid: rowData.guid,
+      cityName: rowData.cityName,
+      state: rowData.state,
+      country: {
+        countryName: rowData.country,
+        isoCode: rowData.isoCode || "",
+        currencyCode: rowData.currencyCode || "",
+        capitalCoordinates: {
+          latitude: rowData.capitalLatitude || 0,
+          longitude: rowData.capitalLongitude || 0,
+        },
+      },
+      touristRating: rowData.touristRating,
+      dateEstablished: rowData.dateEstablished,
+      estimatedPopulation: rowData.estimatedPopulation,
+    };
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newCity = createCityObject();
 
     try {
       const response = await fetch("http://localhost:3000/cities", {
@@ -56,27 +116,7 @@ function AddCityForm({
 
       if (response.ok) {
         const responseData = await response.json();
-
-        const rowData = responseData.row;
-
-        const formattedCity: City = {
-          guid: rowData.guid,
-          cityName: rowData.cityName,
-          state: rowData.state,
-          country: {
-            countryName: rowData.country,
-            isoCode: rowData.isoCode || "",
-            currencyCode: rowData.currencyCode || "",
-            capitalCoordinates: {
-              latitude: rowData.capitalLatitude || 0,
-              longitude: rowData.capitalLongitude || 0,
-            },
-          },
-          touristRating: rowData.touristRating,
-          dateEstablished: rowData.dateEstablished,
-          estimatedPopulation: rowData.estimatedPopulation,
-        };
-
+        const formattedCity = formatResponseToCity(responseData);
         onAddCity(formattedCity);
         onCancel();
       } else {
@@ -87,84 +127,81 @@ function AddCityForm({
     }
   };
 
+  const formFields: FormField[] = [
+    {
+      id: "name",
+      label: "Name",
+      type: "text",
+      value: cityName,
+      onChange: (value) => setCityName(value),
+      required: true,
+    },
+    {
+      id: "state",
+      label: "State",
+      type: "text",
+      value: state,
+      onChange: (value) => setState(value),
+      required: true,
+    },
+    {
+      id: "rating",
+      label: "Rating",
+      type: "number",
+      value: touristRating,
+      onChange: (value) => setTouristRating(Number(value)),
+      min: 1,
+      max: 5,
+      required: true,
+    },
+    {
+      id: "date",
+      label: "Date Established",
+      type: "text",
+      value: dateEstablished,
+      onChange: (value) => setDateEstablished(value),
+      required: true,
+    },
+    {
+      id: "population",
+      label: "Population",
+      type: "number",
+      value: estimatedPopulation,
+      onChange: (value) => setEstimatedPopulation(Number(value)),
+      required: true,
+    },
+  ];
+
+  const countryOptions = countries.map((country) => ({
+    value: country.countryName,
+    label: country.countryName,
+  }));
+
   return (
     <section className="form-container">
       <h2>Add City</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            id="name"
-            value={cityName}
-            onChange={(e) => setCityName(e.target.value)}
-            required
+        {formFields.slice(0, 2).map((field) => (
+          <FormField key={field.id} {...field} />
+        ))}
+
+        <div className="form-group">
+          <label htmlFor="country">Country:</label>
+          <Select
+            className="country-select"
+            classNamePrefix="country-select"
+            options={countryOptions}
+            value={country ? { value: country, label: country } : null}
+            onChange={(e: SingleValue<{ value: string; label: string }>) =>
+              setCountry(e ? e.value : "")
+            }
           />
         </div>
-        <div>
-          <label htmlFor="state">State:</label>
-          <input
-            type="text"
-            id="state"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            required
-          />
-        </div>
-        <Select
-          // TODO: MOVE STYLES TO CSS STYLESHEET
-          styles={{
-            menu: (provided) => ({
-              ...provided,
-              backgroundColor: "lightgray",
-            }),
-            option: (provided, state) => ({
-              ...provided,
-              color: "black", // Default option text color
-              backgroundColor: state.isFocused ? "lightgray" : "white",
-            }),
-          }}
-          options={countries.map((country) => ({
-            value: country.countryName,
-            label: country.countryName,
-          }))}
-          value={{ value: country, label: country }}
-          onChange={(e: SingleValue<{ value: string; label: string }>) =>
-            setCountry(e ? e.value : "")
-          }
-        />
-        <div>
-          <label htmlFor="rating">Rating:</label>
-          <input
-            type="number"
-            id="rating"
-            value={touristRating}
-            onChange={(e) => setTouristRating(Number(e.target.value))}
-            min="1"
-            max="5"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="date">Date Established:</label>
-          <input
-            type="text"
-            id="date"
-            value={dateEstablished}
-            onChange={(e) => setDateEstablished(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="population">Population:</label>
-          <input
-            type="number"
-            id="population"
-            value={estimatedPopulation}
-            onChange={(e) => setEstimatedPopulation(Number(e.target.value))}
-            required
-          />
-        </div>
+
+        {formFields.slice(2).map((field) => (
+          <FormField key={field.id} {...field} />
+        ))}
+
         <div className="button-group">
           <button type="submit">Add</button>
           <button type="button" onClick={onCancel}>

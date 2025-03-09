@@ -1,4 +1,3 @@
-// src/components/EditCityForm.tsx
 import React, { useState } from "react";
 import { City } from "../types";
 import "./Forms.css";
@@ -8,6 +7,41 @@ interface EditCityFormProps {
   onCancel: () => void;
   onUpdateCity: (city: City) => void;
 }
+
+interface FormField {
+  id: string;
+  label: string;
+  type: "text" | "number";
+  value: string | number;
+  onChange: (value: string) => void;
+  required?: boolean;
+  min?: number;
+  max?: number;
+}
+
+const FormField = ({
+  id,
+  label,
+  type,
+  value,
+  onChange,
+  required,
+  min,
+  max,
+}: FormField) => (
+  <div className="form-group">
+    <label htmlFor={id}>{label}:</label>
+    <input
+      type={type}
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      required={required}
+      min={min}
+      max={max}
+    />
+  </div>
+);
 
 function EditCityForm({
   city,
@@ -20,14 +54,18 @@ function EditCityForm({
     city.estimatedPopulation
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const updatedCity: City = {
+  const createUpdatedCityObject = (): City => {
+    return {
       ...city,
       touristRating,
       dateEstablished,
       estimatedPopulation,
     };
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const updatedCity = createUpdatedCityObject();
 
     try {
       const response = await fetch(
@@ -52,44 +90,58 @@ function EditCityForm({
     }
   };
 
+  const formFields: FormField[] = [
+    {
+      id: "rating",
+      label: "Tourist Rating",
+      type: "number",
+      value: touristRating,
+      onChange: (value) => setTouristRating(Number(value)),
+      min: 1,
+      max: 5,
+      required: true,
+    },
+    {
+      id: "date",
+      label: "Date Established",
+      type: "text",
+      value: dateEstablished,
+      onChange: (value) => setDateEstablished(value),
+      required: true,
+    },
+    {
+      id: "population",
+      label: "Estimated Population",
+      type: "number",
+      value: estimatedPopulation,
+      onChange: (value) => setEstimatedPopulation(Number(value)),
+      required: true,
+    },
+  ];
+
   return (
     <section className="form-container">
-      <h2>Edit City</h2>
+      <h2>Edit City: {city.cityName}</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="rating">Rating:</label>
-          <input
-            type="number"
-            id="rating"
-            value={touristRating}
-            onChange={(e) => setTouristRating(Number(e.target.value))}
-            min="1"
-            max="5"
-            required
-          />
+        <div className="city-info">
+          <p>
+            <strong>City:</strong> {city.cityName}
+          </p>
+          <p>
+            <strong>State/Province:</strong> {city.state}
+          </p>
+          <p>
+            <strong>Country:</strong> {city.country.countryName}
+          </p>
         </div>
-        <div>
-          <label htmlFor="date">Date Established:</label>
-          <input
-            type="text"
-            id="date"
-            value={dateEstablished}
-            onChange={(e) => setDateEstablished(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="population">Population:</label>
-          <input
-            type="number"
-            id="population"
-            value={estimatedPopulation}
-            onChange={(e) => setEstimatedPopulation(Number(e.target.value))}
-            required
-          />
-        </div>
+
+        {formFields.map((field) => (
+          <FormField key={field.id} {...field} />
+        ))}
+
+        {/* Action buttons */}
         <div className="button-group">
-          <button type="submit">Save</button>
+          <button type="submit">Update</button>
           <button type="button" onClick={onCancel}>
             Cancel
           </button>
