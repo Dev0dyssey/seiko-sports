@@ -117,7 +117,7 @@ seiko-sports/
 
 1. Navigate to the frontend directory:
    ```bash
-   cd ../frontend
+   cd ../seiko-sports-app
    ```
 
 2. Install frontend dependencies:
