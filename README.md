@@ -94,7 +94,7 @@ seiko-sports/
 1. Clone the repository:
    ```bash
    git clone https://github.com/Dev0dyssey/seiko-sports.git
-   cd seiko-sportsserver
+   cd seiko-sports/server
    ```
 
 2. Install backend dependencies:
